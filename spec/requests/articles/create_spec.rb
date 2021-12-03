@@ -24,23 +24,25 @@ describe 'POST /api.articles ' do
     end
   end
 
-describe 'unsuccessfully' do
+  describe 'unsuccessfully' do
     describe 'due to missing params' do
       before { post '/api/articles', params: {} }
 
-      it { is_expected.to have_http_status 422 }
+      it{ is_expected.to have_http_status 422 } 
 
       it 'is expected to respond with an error message' do
         expect(response_json['message']).to eq 'Missing params'
       end
     end
+
+
     describe 'due to missing title' do
       before do
         post '/api/articles',
              params: {
                article: {
-                 content: 'My text yada yada',
-               },
+                 content: 'My text yada yada'
+               }
              }
       end
       it { is_expected.to have_http_status 422 }
@@ -49,6 +51,7 @@ describe 'unsuccessfully' do
         expect(response_json['message']).to eq 'Title can\'t be blank'
       end
     end
-  end
+  end 
+
 end
 

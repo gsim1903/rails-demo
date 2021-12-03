@@ -22,11 +22,13 @@ class Api::ArticlesController < ApplicationController
   def validate_params_presence
     if params[:article].nil?
     render json: {message: 'Missing params'}, status: 422 
-    
+    end
   end
 
   def article_params
-     params[:article].permit(:title, :content)
-   end
-
+    params[:article].permit(:title, :content)
+    
+  end
 end
+
+
