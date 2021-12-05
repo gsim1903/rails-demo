@@ -1,58 +1,83 @@
-describe 'POST /api.articles ' do
+describe 'POST /api/articles' do
   subject { response }
+  let(:user) { create(:user) }
+  let(:credentials) { user.create_new_auth_token }
 
-  describe 'successfully' do
-    before do
-      post '/api/articles', params: { article: {
-        title: 'amazing article',
-        content: 'hey hey hey'
-      } }
+  describe 'with valid params' do
+    describe 'as an anonymous user' do
+      before do
+        post '/api/articles',
+             params: {
+               article: {
+                 title: 'Hey hey',
+                 content: 'My my'
+               }
+             }, headers: nil
+      end
+
+      it { is_expected.to have_http_status :unauthorized }
+
+      it 'is expected to respond with status 401' do
+        expect(subject.status).to eq 401
+      end
     end
 
-    it 'is expected to respond with status 201' do
-      expect(response.status).to eq 201
-    end
+    describe 'as an authenticated user' do
+      before do
+        post '/api/articles',
+             params: {
+               article: {
+                 title: 'Hey hey',
+                 content: 'My my'
+               }
+             }, headers: credentials
+      end
 
-    it { is_expected.to have_http_status :created }
+      it 'is expected to respond with status 201' do
+        expect(subject.status).to eq 201
+      end
 
-    it 'is expected to return the new object with a title' do
-      expect(response_json['article']['title']).to eq 'amazing article'
-    end
+      it { is_expected.to have_http_status :created }
 
-    it 'is expected to return the new object with a title' do
-      expect(response_json['article']['content']).to eq 'hey hey hey'
+      it 'is expected to respond with the new object with a title' do
+        expect(response_json['article']['title']).to eq 'Hey hey'
+      end
+
+      it 'is expected to respond with the new object with a article content' do
+        expect(response_json['article']['content']).to eq 'My my'
+      end
     end
   end
 
   describe 'unsuccessfully' do
     describe 'due to missing params' do
-      before { post '/api/articles', params: {} }
+      before do
+        post '/api/articles', params: {}, headers: credentials
+      end
 
-      it{ is_expected.to have_http_status 422 } 
+      it { is_expected.to have_http_status 422 }
 
       it 'is expected to respond with an error message' do
         expect(response_json['message']).to eq 'Missing params'
       end
     end
 
-
     describe 'due to missing title' do
       before do
         post '/api/articles',
              params: {
                article: {
-                 content: 'My text yada yada'
+                 content: 'My text content...'
                }
-             }
+             }, headers: credentials
       end
+
       it { is_expected.to have_http_status 422 }
 
       it 'is expected to respond with an error message' do
-        expect(response_json['message']).to eq 'Title can\'t be blank'
+        expect(response_json['message']).to eq "Title can't be blank"
       end
     end
-  end 
-
+  end
 end
-
 
